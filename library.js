@@ -302,7 +302,7 @@ builder.add('components','table', class extends builder.ComponentClass {
         this._component.id = this._component.attr('id');
 
         // Add a Deprecated Warning
-        this._component.deprecated = $(document.createElement('div')).addClass('alert alert-warning alert-dismissible fade show').appendTo(this._component);
+        this._component.deprecated = $(document.createElement('div')).addClass('alert alert-warning alert-dismissible fade show m-4').appendTo(this._component);
         this._component.deprecated.html('<strong>Deprecated:</strong> This component is deprecated and will be removed in a future version. Please use the <code>datatable</code> component instead.');
         this._component.deprecated.close = $(document.createElement('button')).addClass('btn-close').attr({"type": "button", "data-bs-dismiss": "alert", "aria-label": "Close"}).appendTo(this._component.deprecated);
 
@@ -582,6 +582,7 @@ builder.add('components','table', class extends builder.ComponentClass {
         setTimeout(() => this._datatable.row(row).remove().draw(), 0);
     }
 })
+
 builder.add('components','datatable', class extends builder.ComponentClass {
 
     #buttons = {
@@ -645,6 +646,7 @@ builder.add('components','datatable', class extends builder.ComponentClass {
             label:{
                 extend: 'collection',
                 text: '<i class="bi-search"></i><span class="ms-2 d-xxl-inline d-none">Advanced Search</span>',
+                init: function (dt, node){ $(node).removeClass('dropdown-toggle'); },
                 action:function(e, dt, node, config){
                     const SearchBuilder = new bootstrap.Collapse(node.closest('div.dataTables_wrapper').find('#SearchBuilder.collapse'))
                     SearchBuilder.toggle()
@@ -653,6 +655,7 @@ builder.add('components','datatable', class extends builder.ComponentClass {
             icon:{
                 extend: 'collection',
                 text: '<i class="bi-search"></i>',
+                init: function (dt, node){ $(node).removeClass('dropdown-toggle'); },
                 action:function(e, dt, node, config){
                     const SearchBuilder = new bootstrap.Collapse(node.closest('div.dataTables_wrapper').find('#SearchBuilder.collapse'))
                     SearchBuilder.toggle()
@@ -668,29 +671,29 @@ builder.add('components','datatable', class extends builder.ComponentClass {
                         extend: 'copy',
                         text: '<i class="bi-clipboard me-2"></i>Clipboard',
                         exportOptions: {
-                columns: ':visible:not(:last-child)',
-            },
+                            columns: ':visible:not(:last-child)',
+                        },
                     },
                     {
                         extend: 'excel',
                         text: '<i class="bi-filetype-xlsx me-2"></i>Excel',
                         exportOptions: {
-                columns: ':visible:not(:last-child)',
-            },
+                            columns: ':visible:not(:last-child)',
+                        },
                     },
                     {
                         extend: 'csv',
                         text: '<i class="bi-filetype-csv me-2"></i>CSV',
                         exportOptions: {
-                columns: ':visible:not(:last-child)',
-            },
+                            columns: ':visible:not(:last-child)',
+                        },
                     },
                     {
                         extend: 'pdf',
                         text: '<i class="bi-filetype-pdf me-2"></i>PDF',
                         exportOptions: {
-                columns: ':visible:not(:last-child)',
-            },
+                            columns: ':visible:not(:last-child)',
+                        },
                     },
                 ],
             },
@@ -702,35 +705,36 @@ builder.add('components','datatable', class extends builder.ComponentClass {
                         extend: 'copy',
                         text: '<i class="bi-clipboard me-2"></i>Clipboard',
                         exportOptions: {
-                columns: ':visible:not(:last-child)',
-            },
+                            columns: ':visible:not(:last-child)',
+                        },
                     },
                     {
                         extend: 'excel',
                         text: '<i class="bi-filetype-xlsx me-2"></i>Excel',
                         exportOptions: {
-                columns: ':visible:not(:last-child)',
-            },
+                            columns: ':visible:not(:last-child)',
+                        },
                     },
                     {
                         extend: 'csv',
                         text: '<i class="bi-filetype-csv me-2"></i>CSV',
                         exportOptions: {
-                columns: ':visible:not(:last-child)',
-            },
+                            columns: ':visible:not(:last-child)',
+                        },
                     },
                     {
                         extend: 'pdf',
                         text: '<i class="bi-filetype-pdf me-2"></i>PDF',
                         exportOptions: {
-                columns: ':visible:not(:last-child)',
-            },
+                            columns: ':visible:not(:last-child)',
+                        },
                     },
                 ],
             },
         }
     }
     _datatable = null
+    #stateWriteEnabled = false;
 
     _init(){
         this._properties = {
@@ -742,6 +746,7 @@ builder.add('components','datatable', class extends builder.ComponentClass {
                 footer: null,
             },
             card:false,
+            autoSave: false,
             advancedSearch:true,
             exportTools:true,
             columnsVisibility:true,
@@ -880,7 +885,7 @@ builder.add('components','datatable', class extends builder.ComponentClass {
 
         // Create Component
         this._component = $(document.createElement('div')).attr({
-            'id': 'table' + this._id,
+            'id': 'datatable' + this._id,
             'class': '',
         });
         this._component.id = this._component.attr('id');
@@ -949,6 +954,102 @@ builder.add('components','datatable', class extends builder.ComponentClass {
         return this.#buttons[name][key];
     }
 
+    #stateKey() {
+        // include origin, path and query so /page?a=1 and /page?a=2 don't clash
+        const url = location.origin + location.pathname + location.search;
+        return `dt.state::${url}::${this._component.id}`;
+    }
+
+    clearState() {
+        // Remove persisted state
+        localStorage.removeItem(this.#stateKey());
+        if (this._datatable) {
+            // If DT tries to save during this block, block it
+            const prev = this.#stateWriteEnabled;
+            this.#stateWriteEnabled = false;
+
+            // Clear DT’s internal state ref too
+            this._datatable.state.clear();
+
+            // Reset UI pieces to initial config
+            // length
+            this._datatable.page.len(this._properties.datatable.pageLength);
+
+            // order
+            this._datatable.order(this._properties.datatable.order);
+
+            // global search
+            this._datatable.search('');
+
+            // SearchBuilder (if present)
+            if (this._datatable.searchBuilder && this._datatable.searchBuilder.clearAll) {
+                this._datatable.searchBuilder.clearAll();
+            }
+
+            // Columns: default back to visible, then reapply any initial columnDefs visibility you declared
+            this._datatable.columns().visible(true, false); // false = no redraw yet
+
+            if (Array.isArray(this._properties.datatable.columnDefs)) {
+                this._properties.datatable.columnDefs.forEach(def => {
+                    // DataTables accepts `targets` or `target`; you used `target` when adding Action column.
+                    const targets = def.targets ?? def.target;
+                    if (typeof def.visible !== 'undefined' && typeof targets !== 'undefined') {
+                        this._datatable.columns(targets).visible(!!def.visible, false);
+                    }
+                });
+            }
+
+            // Adjust and draw once
+            this._datatable.columns.adjust().draw(false);
+
+            // restore previous write flag
+            this.#stateWriteEnabled = prev;
+        }
+    }
+
+    saveState() {
+        if (this._datatable) this._datatable.state.save();
+    }
+
+    #addSaveButton() {
+        // Honor label/icon mode using your showButtonsLabel flag
+        const text = this._properties.showButtonsLabel
+            ? '<i class="bi bi-save"></i><span class="ms-2 d-xl-inline d-none">Save settings</span>'
+            : '<i class="bi bi-save"></i>';
+
+        return {
+            text,
+            // optional: class name to target later if you want
+            className: 'btn-success btn-save-settings',
+            init: function (dt, node){ $(node).removeClass('btn-secondary'); },
+            attr: { title: 'Save current view (order, columns, length, filters)' },
+            action: (e, dt) => {
+                const prev = this.#stateWriteEnabled;
+                this.#stateWriteEnabled = true;  // allow a one-shot write
+                dt.state.save();
+                this.#stateWriteEnabled = prev;  // revert
+            },
+        };
+    }
+
+    #addClearButton() {
+        // Honor label/icon mode using your showButtonsLabel flag
+        const text = this._properties.showButtonsLabel
+            ? '<i class="bi bi-x-circle"></i><span class="ms-2 d-xl-inline d-none">Clear settings</span>'
+            : '<i class="bi bi-x-circle"></i>';
+
+        return {
+            text,
+            // optional: class name to target later if you want
+            className: 'btn-light btn-save-settings',
+            init: function (dt, node){ $(node).removeClass('btn-secondary'); },
+            attr: { title: 'Clear current view (order, columns, length, filters)' },
+            action: (e, dt) => {
+                this.clearState();
+            },
+        };
+    }
+
     #configure(){
 
         // Set Self
@@ -1011,6 +1112,41 @@ builder.add('components','datatable', class extends builder.ComponentClass {
             this._properties.datatable.dom += ' ' + this._properties.class.footer;
         }
         this._properties.datatable.dom += '"lip>';
+
+        // Persist state (order, length, visibilities, search, SearchBuilder rules)
+        this._properties.datatable.stateSave = true;
+        // keep forever (until you clear localStorage)
+        this._properties.datatable.stateDuration = -1;
+
+        // Add manual "Clear settings" when autoSave is disabled
+        if (!this._properties.autoSave) {
+            this._properties.datatable.buttons.push(this.#addClearButton());
+        }
+
+        // Add manual "Save settings" when autoSave is disabled
+        if (!this._properties.autoSave) {
+            this._properties.datatable.buttons.push(this.#addSaveButton());
+        }
+
+        // Use a custom key per URL + component id
+        this._properties.datatable.stateSaveCallback = (settings, data) => {
+            if (!self.#stateWriteEnabled) return;
+            try {
+                localStorage.setItem(self.#stateKey(), JSON.stringify(data));
+            } catch(e) {
+                // optional: fall back or warn
+                console.warn('Failed to save DataTable state:', e);
+            }
+        };
+        this._properties.datatable.stateLoadCallback = (settings) => {
+            try {
+                const raw = localStorage.getItem(self.#stateKey());
+                return raw ? JSON.parse(raw) : null;
+            } catch(e) {
+                console.warn('Failed to load DataTable state:', e);
+                return null;
+            }
+        };
 
         // drawCallback
         this._properties.datatable.drawCallback = function(){
@@ -1084,6 +1220,22 @@ builder.add('components','datatable', class extends builder.ComponentClass {
 
         // Initialize Datatable
         this._datatable = this._component.table.DataTable(this.#configure());
+
+        // Auto-save only if enabled
+        if (this._properties.autoSave) {
+            this.#stateWriteEnabled = true;
+            this._datatable.on(
+                // save on common mutating events
+                'column-visibility.dt column-reorder.dt order.dt length.dt search.dt',
+                () => this._datatable.state.save()
+            );
+
+            // Some extensions redraw; save on draw to catch late updates (cheap op)
+            this._datatable.on('draw.dt', () => this._datatable.state.save());
+
+            // SearchBuilder specific (if it emits in your build)
+            $(this._component).on('dtsb-redrawContents', () => this._datatable.state.save());
+        }
 
         // Hide buttons if no rows are selected
         this._datatable.on('select.dt deselect.dt', () => {
