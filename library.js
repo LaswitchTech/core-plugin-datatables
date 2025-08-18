@@ -388,6 +388,8 @@ builder.add('components','table', class extends builder.ComponentClass {
                     defaultContent: this._component.actions.outerHTML(),
                 }
             );
+            // this._properties.datatable.fixedColumns = {start: 0, end: 1};
+            // this._properties.datatable.scrollX = true;
         }
 
         // Add Select Tools
