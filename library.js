@@ -909,6 +909,7 @@ builder.add('components','datatable', class extends builder.ComponentClass {
                         },
                     },
                     function(dropdown){
+                        dropdown._component.addClass('actions');
                         if(self._properties.actions){
                             for(const [name, action] of Object.entries(self._properties.actions)){
                                 dropdown.item(
@@ -1065,9 +1066,9 @@ builder.add('components','datatable', class extends builder.ComponentClass {
                     target: this._properties.datatable.columnDefs.length,
                     visible: true,
                     responsivePriority: 1,
-                    title: "Action",
+                    title: "",
                     data: null,
-                    width: '80px',
+                    // width: '40px',
                     defaultContent: this._component.actions.outerHTML(),
                 }
             );
