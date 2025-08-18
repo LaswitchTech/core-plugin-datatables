@@ -749,6 +749,7 @@ builder.add('components','datatable', class extends builder.ComponentClass {
             },
             card:false,
             autoSave: false,
+            standardSearch:false,
             advancedSearch:true,
             exportTools:true,
             columnsVisibility:true,
@@ -770,7 +771,7 @@ builder.add('components','datatable', class extends builder.ComponentClass {
                 ordering: true,
                 paging: true,
                 searching: true,
-                dom: '<"d-flex flex-column justify-content-start align-items-start mb-2"B<"#SearchBuilder.collapse w-100 py-2 pt-3"<"card card-body"Q>><"#SearchPanes.collapse py-2 pt-3"<"card card-body"P>>><t><"d-flex justify-content-between align-items-center"lip>',
+                // dom: '<"d-flex flex-column justify-content-start align-items-start mb-2"B<"#SearchBuilder.collapse w-100 py-2 pt-3"<"card card-body"Q>><"#SearchPanes.collapse py-2 pt-3"<"card card-body"P>>><t><"d-flex justify-content-between align-items-center"lip>',
                 lengthMenu: [ 10, 25, 50, 100 ],
                 order: [[0, 'asc']],
                 pageLength: 10,
@@ -1094,24 +1095,34 @@ builder.add('components','datatable', class extends builder.ComponentClass {
         }
 
         // Add Classes
-        this._properties.datatable.dom = '<"d-flex flex-column justify-content-start align-items-start';
+        this._properties.datatable.dom = '';
+        this._properties.datatable.dom += '<"';
         if(this._properties.class.buttons){
-            this._properties.datatable.dom += ' ' + this._properties.class.buttons;
+            this._properties.datatable.dom += this._properties.class.buttons;
+        } else {
+            this._properties.datatable.dom += 'd-flex flex-column justify-content-start align-items-start';
         }
-        this._properties.datatable.dom += '"B<"#SearchBuilder.collapse w-100';
-        if(this._properties.class.searchBuilder){
-            this._properties.datatable.dom += ' ' + this._properties.class.searchBuilder;
+        this._properties.datatable.dom += '"';
+        if(this._properties.standardSearch){
+            this._properties.datatable.dom += 'f';
         }
-        this._properties.datatable.dom += '"<"card card-body"Q>><"#SearchPanes.collapse py-2 pt-3"<"card card-body"P>>><"';
-        if(this._properties.class.table){
-            if(this._properties.class.table.indexOf('mt-0') === -1){
-                this._properties.datatable.dom += ' mt-4';
+        this._properties.datatable.dom += 'B';
+        if(this._properties.advancedSearch){
+            this._properties.datatable.dom += '<"#SearchBuilder.collapse w-100';
+            if(this._properties.class.searchBuilder){
+                this._properties.datatable.dom += ' ' + this._properties.class.searchBuilder;
             }
-            this._properties.datatable.dom += ' ' + this._properties.class.table;
+            this._properties.datatable.dom += '"<"card card-body"Q>><"#SearchPanes.collapse py-2 pt-3"<"card card-body"P>>';
         }
-        this._properties.datatable.dom += '"t><"d-flex justify-content-between align-items-center';
+        this._properties.datatable.dom += '><"';
+        if(this._properties.class.table){
+            this._properties.datatable.dom += this._properties.class.table;
+        }
+        this._properties.datatable.dom += '"t><"';
         if(this._properties.class.footer){
-            this._properties.datatable.dom += ' ' + this._properties.class.footer;
+            this._properties.datatable.dom += this._properties.class.footer;
+        } else {
+            this._properties.datatable.dom += 'd-flex justify-content-between align-items-center';
         }
         this._properties.datatable.dom += '"lip>';
 
