@@ -1295,6 +1295,16 @@ builder.add('components','datatable', class extends builder.ComponentClass {
 
         if(this._datatable){
 
+            // Check if the row already exists
+            const existingRow = this._datatable.rows(function(idx, rowData) {
+                return rowData.id === data.id;
+            });
+            if (existingRow.data().length > 0) {
+                // Row already exists, update it instead
+                this._datatable.row(existingRow).data(data).draw();
+                return;  // Exit early to avoid adding a duplicate row
+            }
+
             // Add Row
             this._datatable.row.add(data).draw()
         } else {
@@ -1303,6 +1313,18 @@ builder.add('components','datatable', class extends builder.ComponentClass {
             var interval = setInterval(function() {
                 if(self._datatable){
                     clearInterval(interval);
+
+                    // Check if the row already exists
+                    const existingRow = self._datatable.rows(function(idx, rowData) {
+                        return rowData.id === data.id;
+                    });
+                    if (existingRow.data().length > 0) {
+                        // Row already exists, update it instead
+                        self._datatable.row(existingRow).data(data).draw();
+                        return;  // Exit early to avoid adding a duplicate row
+                    }
+
+                    // Add Row
                     self._datatable.row.add(data).draw()
                 }
             }, 100);
