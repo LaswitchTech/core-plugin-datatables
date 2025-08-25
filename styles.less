@@ -1,0 +1,27 @@
+.dataTable {
+    tbody {
+        tr {
+            td {
+                &:has(.actions) {
+                    width: 34px;
+
+                    .actions {
+                        width: 34px;
+                    }
+                }
+            }
+
+            &.selected {
+                td {
+                    &:has(.actions) {
+                        .actions {
+                            >button {
+                                color: var(--bs-white);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
