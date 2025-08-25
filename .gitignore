@@ -26,6 +26,9 @@ TOKEN
 !styles.cfg
 !listing.cfg
 
+# Excludes Assets Configurations
+!assets/*.cfg
+
 # Exclude Locales Configurations and Translations
 !Locale/*/*.cfg
 
