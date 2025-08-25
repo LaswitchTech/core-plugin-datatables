@@ -1068,8 +1068,11 @@ builder.add('components','datatable', class extends builder.ComponentClass {
                     responsivePriority: 1,
                     title: "",
                     data: null,
-                    // width: '40px',
                     defaultContent: this._component.actions.outerHTML(),
+                    render: function(data, type, row, meta) {
+                        // Render the action dropdown
+                        return self._component.actions.outerHTML();
+                    }
                 }
             );
         }
@@ -1220,6 +1223,21 @@ builder.add('components','datatable', class extends builder.ComponentClass {
                         }
                     }
                 });
+            }
+        }
+
+        // ColumnDefs
+        if (Array.isArray(this._properties.datatable.columnDefs)) {
+            for(const [key, definition] of Object.entries(this._properties.datatable.columnDefs)){
+
+                // Check if the definition has a render function
+                if (typeof definition.render !== 'function') {
+
+                    // Add default render function if not defined
+                    definition.render = function(data, type, row, meta) {
+                        return self._builder.Render(meta.settings.aoColumns[meta.col].data ?? meta.settings.aoColumns[meta.col].name, data, row);
+                    }
+                }
             }
         }
 
