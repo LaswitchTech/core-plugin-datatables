@@ -1045,7 +1045,7 @@ builder.add('components','datatable', class extends builder.ComponentClass {
         return {
             text,
             // optional: class name to target later if you want
-            className: 'btn-light btn-save-settings',
+            className: 'btn-light btn-clear-settings',
             init: function (dt, node){ $(node).removeClass('btn-secondary'); },
             attr: { title: 'Clear current view (order, columns, length, filters)' },
             action: (e, dt) => {
