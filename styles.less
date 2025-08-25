@@ -10,6 +10,18 @@
                     }
                 }
             }
+
+            &.selected {
+                td {
+                    &:has(.actions) {
+                        .actions {
+                            >button {
+                                color: var(--bs-white);
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }
