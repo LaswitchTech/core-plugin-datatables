@@ -1233,13 +1233,16 @@ builder.add('components','datatable', class extends builder.ComponentClass {
             for(const [key, definition] of Object.entries(this._properties.datatable.columnDefs)){
 
                 // Check if the definition has a render function
-                if (typeof definition.render !== 'function') {
+                if (typeof definition.render === 'undefined' || typeof definition.render !== 'function') {
 
                     // Add default render function if not defined
                     definition.render = function(data, type, row, meta) {
-                        return self._builder.Render(meta.settings.aoColumns[meta.col].data ?? meta.settings.aoColumns[meta.col].name, data, row);
+                        return self._builder.Render(definition.data ?? definition.name, data, row, type);
                     }
                 }
+
+                // Update the definition in the array
+                this._properties.datatable.columnDefs[key] = definition;
             }
         }
 
