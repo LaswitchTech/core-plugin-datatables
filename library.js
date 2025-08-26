@@ -1075,6 +1075,8 @@ builder.add('components','datatable', class extends builder.ComponentClass {
                     }
                 }
             );
+            // this._properties.datatable.fixedColumns = {start: 0, end: 1};
+            // this._properties.datatable.scrollX = true;
         }
 
         // Add Select Tools
