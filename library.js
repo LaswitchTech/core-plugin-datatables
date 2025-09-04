@@ -418,7 +418,7 @@ builder.add('components','table', class extends builder.ComponentClass {
         if(this._properties.class.buttons){
             this._properties.datatable.dom += ' ' + this._properties.class.buttons;
         }
-        this._properties.datatable.dom += '"B<"#SearchBuilder.collapse w-100';
+        this._properties.datatable.dom += '"B<"#SearchBuilder.collapse';
         if(this._properties.class.searchBuilder){
             this._properties.datatable.dom += ' ' + this._properties.class.searchBuilder;
         }
@@ -1102,11 +1102,11 @@ builder.add('components','datatable', class extends builder.ComponentClass {
 
         // Add Classes
         this._properties.datatable.dom = '';
-        this._properties.datatable.dom += '<"';
+        this._properties.datatable.dom += '<"datatables-controls';
         if(this._properties.class.buttons){
-            this._properties.datatable.dom += this._properties.class.buttons;
+            this._properties.datatable.dom += ' ' + this._properties.class.buttons;
         } else {
-            this._properties.datatable.dom += 'd-flex flex-column justify-content-start align-items-start';
+            this._properties.datatable.dom += ' d-flex flex-column justify-content-start align-items-start';
         }
         this._properties.datatable.dom += '"';
         if(this._properties.standardSearch){
@@ -1114,11 +1114,18 @@ builder.add('components','datatable', class extends builder.ComponentClass {
         }
         this._properties.datatable.dom += 'B';
         if(this._properties.advancedSearch){
-            this._properties.datatable.dom += '<"#SearchBuilder.collapse w-100';
+            this._properties.datatable.dom += '<"#SearchBuilder.searchBuilder collapse w-100';
             if(this._properties.class.searchBuilder){
                 this._properties.datatable.dom += ' ' + this._properties.class.searchBuilder;
             }
-            this._properties.datatable.dom += '"<"card card-body"Q>><"#SearchPanes.collapse py-2 pt-3"<"card card-body"P>>';
+            this._properties.datatable.dom += '"<"card card-body"Q>>';
+        }
+        if(this._properties.searchPanes){
+            this._properties.datatable.dom += '<"#SearchPanes.collapse py-2 pt-3';
+            if(this._properties.class.searchPanes){
+                this._properties.datatable.dom += ' ' + this._properties.class.searchPanes;
+            }
+            this._properties.datatable.dom += '"<"card card-body"P>>';
         }
         this._properties.datatable.dom += '><"';
         if(this._properties.class.table){
