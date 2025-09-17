@@ -747,6 +747,7 @@ builder.add('components','datatable', class extends builder.ComponentClass {
                 table: null,
                 footer: null,
             },
+            primary: 'id',
             card:false,
             autoSave: false,
             standardSearch:false,
@@ -1100,8 +1101,9 @@ builder.add('components','datatable', class extends builder.ComponentClass {
             this._properties.datatable.buttons.push(self.#button('advancedSearch',this._properties.showButtonsLabel));
         }
 
-        // Add Classes
+        // Setup DOM structure
         this._properties.datatable.dom = '';
+        // Controls
         this._properties.datatable.dom += '<"datatables-controls';
         if(this._properties.class.buttons){
             this._properties.datatable.dom += ' ' + this._properties.class.buttons;
@@ -1127,13 +1129,17 @@ builder.add('components','datatable', class extends builder.ComponentClass {
             }
             this._properties.datatable.dom += '"<"card card-body"P>>';
         }
-        this._properties.datatable.dom += '><"';
+        this._properties.datatable.dom += '>';
+        // Table
+        this._properties.datatable.dom += '<"datatables-table';
         if(this._properties.class.table){
-            this._properties.datatable.dom += this._properties.class.table;
+            this._properties.datatable.dom += ' ' + this._properties.class.table;
         }
-        this._properties.datatable.dom += '"t><"';
+        this._properties.datatable.dom += '"t>';
+        // Footer
+        this._properties.datatable.dom += '"<"datatables-footer';
         if(this._properties.class.footer){
-            this._properties.datatable.dom += this._properties.class.footer;
+            this._properties.datatable.dom += ' ' + this._properties.class.footer;
         } else {
             this._properties.datatable.dom += 'd-flex justify-content-between align-items-center';
         }
@@ -1327,7 +1333,7 @@ builder.add('components','datatable', class extends builder.ComponentClass {
 
             // Check if the row already exists
             const existingRow = this._datatable.rows(function(idx, rowData) {
-                return rowData.id === data.id;
+                return rowData[self._properties.primary] === data[self._properties.primary];
             });
             if (existingRow.data().length > 0) {
                 // Row already exists, update it instead
@@ -1346,7 +1352,7 @@ builder.add('components','datatable', class extends builder.ComponentClass {
 
                     // Check if the row already exists
                     const existingRow = self._datatable.rows(function(idx, rowData) {
-                        return rowData.id === data.id;
+                        return rowData[self._properties.primary] === data[self._properties.primary];
                     });
                     if (existingRow.data().length > 0) {
                         // Row already exists, update it instead
