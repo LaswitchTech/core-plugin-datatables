@@ -21,8 +21,8 @@ builder.add('components','table', class extends builder.ComponentClass {
                         text: '<i class="bi-check2-all me-2"></i>All',
                     },
                     {
-                        name: 'selectVisible',
-                        text: '<i class="bi-eye me-2"></i>Visible',
+                        name: 'selectFiltered',
+                        text: '<i class="bi-eye me-2"></i>Filtered',
                         action: function (e, dt, node, config) {
                             dt.rows({ selected: true }).deselect();
                             dt.rows({ search: 'applied', page: 'all' }).select();
@@ -43,8 +43,8 @@ builder.add('components','table', class extends builder.ComponentClass {
                         text: '<i class="bi-check2-all me-2"></i>All',
                     },
                     {
-                        name: 'selectVisible',
-                        text: '<i class="bi-eye me-2"></i>Visible',
+                        name: 'selectFiltered',
+                        text: '<i class="bi-eye me-2"></i>Filtered',
                         action: function (e, dt, node, config) {
                             dt.rows({ selected: true }).deselect();
                             dt.rows({ search: 'applied', page: 'current' }).select();
@@ -608,16 +608,24 @@ builder.add('components','datatable', class extends builder.ComponentClass {
                         text: '<i class="bi-check2-all me-2"></i>All',
                     },
                     {
-                        name: 'selectVisible',
-                        text: '<i class="bi-eye me-2"></i>Visible',
+                        extend: 'selectNone',
+                        text: '<i class="bi-x-square me-2"></i>None',
+                    },
+                    {
+                        name: 'selectFiltered',
+                        text: '<i class="bi-eye me-2"></i>Filtered',
                         action: function (e, dt, node, config) {
                             dt.rows({ selected: true }).deselect();
                             dt.rows({ search: 'applied', page: 'all' }).select();
                         },
                     },
                     {
-                        extend: 'selectNone',
-                        text: '<i class="bi-x-square me-2"></i>None',
+                        name: 'selectUnfiltered',
+                        text: '<i class="bi-eye-slash me-2"></i>Unfiltered',
+                        action: function (e, dt, node, config) {
+                            dt.rows({ selected: true }).deselect();
+                            dt.rows({ search: 'removed', page: 'all' }).select();
+                        },
                     },
                 ],
             },
@@ -630,16 +638,24 @@ builder.add('components','datatable', class extends builder.ComponentClass {
                         text: '<i class="bi-check2-all me-2"></i>All',
                     },
                     {
-                        name: 'selectVisible',
-                        text: '<i class="bi-eye me-2"></i>Visible',
+                        extend: 'selectNone',
+                        text: '<i class="bi-x-square me-2"></i>None',
+                    },
+                    {
+                        name: 'selectFiltered',
+                        text: '<i class="bi-eye me-2"></i>Filtered',
                         action: function (e, dt, node, config) {
                             dt.rows({ selected: true }).deselect();
-                            dt.rows({ search: 'applied', page: 'current' }).select();
+                            dt.rows({ search: 'applied', page: 'all' }).select();
                         },
                     },
                     {
-                        extend: 'selectNone',
-                        text: '<i class="bi-x-square me-2"></i>None',
+                        name: 'selectUnfiltered',
+                        text: '<i class="bi-eye-slash me-2"></i>Unfiltered',
+                        action: function (e, dt, node, config) {
+                            dt.rows({ selected: true }).deselect();
+                            dt.rows({ search: 'removed', page: 'all' }).select();
+                        },
                     },
                 ],
             },
@@ -767,6 +783,16 @@ builder.add('components','datatable', class extends builder.ComponentClass {
             title: null,
             icon: null,
             datatable: {
+                responsive: {
+                    breakpoints: [
+                        { name: 'xl', width: Infinity },
+                        { name: 'lg', width: 1400 },
+                        { name: 'md', width: 992 },
+                        { name: 'sm', width: 768 },
+                        { name: 'xs', width: 576 },
+                        { name: 'xxs', width: 0 }
+                    ]
+                },
                 autoWidth: true,
                 lengthChange: true,
                 ordering: true,
