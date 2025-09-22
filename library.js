@@ -21,8 +21,8 @@ builder.add('components','table', class extends builder.ComponentClass {
                         text: '<i class="bi-check2-all me-2"></i>All',
                     },
                     {
-                        name: 'selectVisible',
-                        text: '<i class="bi-eye me-2"></i>Visible',
+                        name: 'selectFiltered',
+                        text: '<i class="bi-eye me-2"></i>Filtered',
                         action: function (e, dt, node, config) {
                             dt.rows({ selected: true }).deselect();
                             dt.rows({ search: 'applied', page: 'all' }).select();
@@ -43,8 +43,8 @@ builder.add('components','table', class extends builder.ComponentClass {
                         text: '<i class="bi-check2-all me-2"></i>All',
                     },
                     {
-                        name: 'selectVisible',
-                        text: '<i class="bi-eye me-2"></i>Visible',
+                        name: 'selectFiltered',
+                        text: '<i class="bi-eye me-2"></i>Filtered',
                         action: function (e, dt, node, config) {
                             dt.rows({ selected: true }).deselect();
                             dt.rows({ search: 'applied', page: 'current' }).select();
@@ -608,16 +608,24 @@ builder.add('components','datatable', class extends builder.ComponentClass {
                         text: '<i class="bi-check2-all me-2"></i>All',
                     },
                     {
-                        name: 'selectVisible',
-                        text: '<i class="bi-eye me-2"></i>Visible',
+                        extend: 'selectNone',
+                        text: '<i class="bi-x-square me-2"></i>None',
+                    },
+                    {
+                        name: 'selectFiltered',
+                        text: '<i class="bi-eye me-2"></i>Filtered',
                         action: function (e, dt, node, config) {
                             dt.rows({ selected: true }).deselect();
                             dt.rows({ search: 'applied', page: 'all' }).select();
                         },
                     },
                     {
-                        extend: 'selectNone',
-                        text: '<i class="bi-x-square me-2"></i>None',
+                        name: 'selectUnfiltered',
+                        text: '<i class="bi-eye-slash me-2"></i>Unfiltered',
+                        action: function (e, dt, node, config) {
+                            dt.rows({ selected: true }).deselect();
+                            dt.rows({ search: 'removed', page: 'all' }).select();
+                        },
                     },
                 ],
             },
@@ -630,16 +638,24 @@ builder.add('components','datatable', class extends builder.ComponentClass {
                         text: '<i class="bi-check2-all me-2"></i>All',
                     },
                     {
-                        name: 'selectVisible',
-                        text: '<i class="bi-eye me-2"></i>Visible',
+                        extend: 'selectNone',
+                        text: '<i class="bi-x-square me-2"></i>None',
+                    },
+                    {
+                        name: 'selectFiltered',
+                        text: '<i class="bi-eye me-2"></i>Filtered',
                         action: function (e, dt, node, config) {
                             dt.rows({ selected: true }).deselect();
-                            dt.rows({ search: 'applied', page: 'current' }).select();
+                            dt.rows({ search: 'applied', page: 'all' }).select();
                         },
                     },
                     {
-                        extend: 'selectNone',
-                        text: '<i class="bi-x-square me-2"></i>None',
+                        name: 'selectUnfiltered',
+                        text: '<i class="bi-eye-slash me-2"></i>Unfiltered',
+                        action: function (e, dt, node, config) {
+                            dt.rows({ selected: true }).deselect();
+                            dt.rows({ search: 'removed', page: 'all' }).select();
+                        },
                     },
                 ],
             },
@@ -747,6 +763,7 @@ builder.add('components','datatable', class extends builder.ComponentClass {
                 table: null,
                 footer: null,
             },
+            primary: 'id',
             card:false,
             autoSave: false,
             standardSearch:false,
@@ -766,6 +783,16 @@ builder.add('components','datatable', class extends builder.ComponentClass {
             title: null,
             icon: null,
             datatable: {
+                responsive: {
+                    breakpoints: [
+                        { name: 'xl', width: Infinity },
+                        { name: 'lg', width: 1400 },
+                        { name: 'md', width: 992 },
+                        { name: 'sm', width: 768 },
+                        { name: 'xs', width: 576 },
+                        { name: 'xxs', width: 0 }
+                    ]
+                },
                 autoWidth: true,
                 lengthChange: true,
                 ordering: true,
@@ -1100,8 +1127,9 @@ builder.add('components','datatable', class extends builder.ComponentClass {
             this._properties.datatable.buttons.push(self.#button('advancedSearch',this._properties.showButtonsLabel));
         }
 
-        // Add Classes
+        // Setup DOM structure
         this._properties.datatable.dom = '';
+        // Controls
         this._properties.datatable.dom += '<"datatables-controls';
         if(this._properties.class.buttons){
             this._properties.datatable.dom += ' ' + this._properties.class.buttons;
@@ -1127,13 +1155,17 @@ builder.add('components','datatable', class extends builder.ComponentClass {
             }
             this._properties.datatable.dom += '"<"card card-body"P>>';
         }
-        this._properties.datatable.dom += '><"';
+        this._properties.datatable.dom += '>';
+        // Table
+        this._properties.datatable.dom += '<"datatables-table';
         if(this._properties.class.table){
-            this._properties.datatable.dom += this._properties.class.table;
+            this._properties.datatable.dom += ' ' + this._properties.class.table;
         }
-        this._properties.datatable.dom += '"t><"';
+        this._properties.datatable.dom += '"t>';
+        // Footer
+        this._properties.datatable.dom += '"<"datatables-footer';
         if(this._properties.class.footer){
-            this._properties.datatable.dom += this._properties.class.footer;
+            this._properties.datatable.dom += ' ' + this._properties.class.footer;
         } else {
             this._properties.datatable.dom += 'd-flex justify-content-between align-items-center';
         }
@@ -1327,7 +1359,7 @@ builder.add('components','datatable', class extends builder.ComponentClass {
 
             // Check if the row already exists
             const existingRow = this._datatable.rows(function(idx, rowData) {
-                return rowData.id === data.id;
+                return rowData[self._properties.primary] === data[self._properties.primary];
             });
             if (existingRow.data().length > 0) {
                 // Row already exists, update it instead
@@ -1346,7 +1378,7 @@ builder.add('components','datatable', class extends builder.ComponentClass {
 
                     // Check if the row already exists
                     const existingRow = self._datatable.rows(function(idx, rowData) {
-                        return rowData.id === data.id;
+                        return rowData[self._properties.primary] === data[self._properties.primary];
                     });
                     if (existingRow.data().length > 0) {
                         // Row already exists, update it instead
