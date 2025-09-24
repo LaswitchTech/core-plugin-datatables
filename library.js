@@ -1039,7 +1039,9 @@ builder.add('components','datatable', class extends builder.ComponentClass {
     }
 
     saveState() {
-        if (this._datatable) this._datatable.state.save();
+        if(this._datatable) {
+            this._datatable.state.save();
+        }
     }
 
     #addSaveButton() {
@@ -1191,6 +1193,12 @@ builder.add('components','datatable', class extends builder.ComponentClass {
             if (!self.#stateWriteEnabled) return;
             try {
                 localStorage.setItem(self.#stateKey(), JSON.stringify(data));
+                self._builder.Toast.add({
+                    color: 'success',
+                    icon: 'save',
+                    title: self._builder.Locale.get('Settings Saved'),
+                    body: self._builder.Locale.get('Your table settings have been saved.'),
+                });
             } catch(e) {
                 // optional: fall back or warn
                 console.warn('Failed to save DataTable state:', e);
