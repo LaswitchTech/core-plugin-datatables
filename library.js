@@ -644,8 +644,11 @@ builder.add('components','datatable', class extends builder.ComponentClass {
                 if(typeof self._properties.dblclick === 'function'){
                     self._component.table.find('tr').off().dblclick(
                         function(event){
-                            let node = $(this)
+                            let node = $(this);
                             let data = self._datatable.row(node).data();
+                            if(typeof data === 'undefined'){
+                                return;
+                            }
                             self._properties.dblclick(event, self, self._datatable, node, data);
                         },
                     );
