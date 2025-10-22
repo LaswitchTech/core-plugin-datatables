@@ -510,7 +510,7 @@ builder.add('components','datatable', class extends builder.ComponentClass {
                     responsivePriority: 1,
                     title: "",
                     data: null,
-                    defaultContent: this._component.actions.outerHTML(),
+                    defaultContent: "",
                     render: function(data, type, row, meta) {
                         // Render the action dropdown
                         return self._component.actions.outerHTML();
